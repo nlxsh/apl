@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Video Prompt Generator</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Bengali",sans-serif;background:linear-gradient(135deg,#081225,#102a43);color:#fff;min-height:100vh}
+.container{max-width:900px;margin:auto;padding:22px}.hero{text-align:center;padding:25px 10px}
+.hero h1{font-size:clamp(28px,6vw,46px);margin:10px 0;background:linear-gradient(90deg,#38bdf8,#a78bfa);-webkit-background-clip:text;color:transparent}
+.hero p{color:#cbd5e1}.card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:22px;margin:18px 0;box-shadow:0 12px 35px #0003}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}label{display:block;margin-bottom:7px;font-weight:bold;color:#dbeafe}
+input,select,textarea{width:100%;padding:13px;border:1px solid #475569;border-radius:10px;background:#0f2036;color:#fff;font-size:15px;outline:none}textarea{resize:vertical;min-height:110px}
+button{border:0;border-radius:10px;padding:13px 18px;font-size:15px;font-weight:bold;cursor:pointer;margin:6px 4px 0 0;background:#38bdf8;color:#062033}
+button:hover{opacity:.88}.secondary{background:#a78bfa;color:#fff}.dark{background:#334155;color:#fff}.output{white-space:pre-wrap;line-height:1.7;background:#07111f;border:1px solid #334155;padding:18px;border-radius:12px;min-height:100px;color:#e2e8f0}
+.badge{display:inline-block;background:#164e63;color:#67e8f9;padding:6px 12px;border-radius:30px;font-size:13px}
+footer{text-align:center;color:#94a3b8;padding:25px;font-size:13px}
+
+.video-panel{margin-top:18px;padding:20px;border:1px solid #38bdf8;border-radius:16px;background:rgba(14,165,233,.08)}
+.status{margin-top:12px;padding:12px;border-radius:10px;background:#111827;color:#bae6fd;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div class="container">
+<section class="hero">
+<span class="badge">AI CREATIVE STUDIO</span>
+<h1>AI Video Prompt Generator</h1>
+<p>আপনার আইডিয়াকে পরিণত করুন প্রফেশনাল AI Video Prompt-এ</p>
+</section>
+
+<div class="card">
+<h2>🎬 ভিডিওর তথ্য দিন</h2>
+<div class="grid">
+<div><label>ভিডিওর বিষয়</label><input id="topic" placeholder="যেমন: মিশরের পিরামিডের অজানা ইতিহাস"></div>
+<div><label>ভিডিও স্টাইল</label><select id="style">
+<option>Documentary</option><option>Cinematic</option><option>Realistic</option><option>Motivational</option><option>Historical</option><option>Animation</option><option>Futuristic</option><option>News Report</option>
+</select></div>
+<div><label>ভিডিও ফরম্যাট</label><select id="format"><option>YouTube Long Video (16:9)</option><option>YouTube Shorts (9:16)</option><option>Instagram Reel (9:16)</option><option>Facebook Video (16:9)</option></select></div>
+<div><label>ভিডিওর দৈর্ঘ্য</label><select id="duration"><option>30 seconds</option><option>1 minute</option><option>2 minutes</option><option>5 minutes</option><option>10 minutes</option><option>15 minutes</option></select></div>
+<div><label>ভিজ্যুয়াল ধরন</label><select id="visual"><option>Ultra realistic</option><option>Photorealistic</option><option>3D cinematic</option><option>2D animation</option><option>Vintage film look</option><option>Dark dramatic atmosphere</option></select></div>
+<div><label>ভয়েসওভার ভাষা</label><select id="voice"><option>Bangla</option><option>English</option><option>Hindi</option><option>No voiceover</option></select></div>
+</div>
+<br>
+<label>অতিরিক্ত নির্দেশনা (ঐচ্ছিক)</label>
+<textarea id="extra" placeholder="যেমন: 10টি দৃশ্য, dramatic music, কোনো watermark নয়, তথ্যভিত্তিক narration..."></textarea>
+<br>
+<button onclick="generate()">✨ Prompt তৈরি করুন</button>
+<button class="secondary" onclick="demo()">ডেমো দেখুন</button>
+<button class="dark" onclick="resetAll()">রিসেট</button>
+</div>
+
+<div class="card video-panel">
+<h2>🎥 AI Video Generator</h2>
+<p>আপনার Prompt ব্যবহার করে AI ভিডিও তৈরির জন্য নিচের ফর্ম পূরণ করুন।</p>
+<div class="grid">
+<div><label>AI Video Model</label><select id="model"><option>Runway</option><option>OpenArt</option><option>Kling</option><option>অন্যান্য API</option></select></div>
+<div><label>ভিডিও কোয়ালিটি</label><select id="quality"><option>720p</option><option>1080p</option><option>4K</option></select></div>
+</div>
+<br>
+<label>API Endpoint (ঐচ্ছিক)</label>
+<input id="endpoint" placeholder="আপনার backend API endpoint দিন">
+<br><br>
+<button onclick="prepareVideo()">🎬 Generate Video Request</button>
+<div id="videoStatus" class="status">এখানে ভিডিও তৈরির স্ট্যাটাস দেখা যাবে।</div>
+</div>
+
+<div class="card">
+<h2>📝 English AI Video Prompt</h2>
+<div id="prompt" class="output">এখানে আপনার তৈরি করা AI Video Prompt দেখা যাবে...</div>
+<button onclick="copyText('prompt')">📋 Copy Prompt</button>
+<button class="secondary" onclick="downloadText('prompt','ai-video-prompt.txt')">⬇ Download Prompt</button>
+</div>
+
+<div class="card">
+<h2>🎙️ বাংলা Voiceover নির্দেশনা</h2>
+<div id="voiceover" class="output">Prompt তৈরি করলে এখানে Voiceover নির্দেশনা দেখা যাবে...</div>
+<button onclick="copyText('voiceover')">📋 Copy Voiceover</button>
+<button class="secondary" onclick="downloadText('voiceover','voiceover-script.txt')">⬇ Download Script</button>
+</div>
+<footer>AI Video Prompt Generator • Created for creative learning</footer>
+</div>
+
+<script>
+function val(id){return document.getElementById(id).value.trim()}
+function generate(){
+const topic=val('topic');if(!topic){alert('দয়া করে ভিডিওর বিষয় লিখুন।');return}
+const style=val('style'),format=val('format'),duration=val('duration'),visual=val('visual'),voice=val('voice'),extra=val('extra');
+const prompt=`Create a professional ${duration} ${style} video about "${topic}".
+
+VIDEO FORMAT: ${format}
+VISUAL STYLE: ${visual}
+LANGUAGE/VOICEOVER: ${voice}
+MOOD: Engaging, emotional, informative, visually powerful.
+
+DIRECTING INSTRUCTIONS:
+- Start with a strong attention-grabbing opening.
+- Build a clear visual story with a logical sequence of scenes.
+- Use cinematic camera movements, natural lighting, realistic environments, and detailed compositions.
+- Include establishing shots, medium shots, close-ups, smooth transitions, and meaningful visual details.
+- Maintain visual consistency, accurate historical or contextual details, and professional pacing.
+- Use suitable background music and sound effects.
+- Keep the visuals engaging and suitable for online video platforms.
+- Avoid blurry frames, distorted faces, extra fingers, unreadable text, random logos, watermarks, and unwanted objects.
+${extra ? '\\nADDITIONAL INSTRUCTIONS:\\n'+extra : ''}
+
+OUTPUT: A polished, high-quality AI-generated video ready for content creation.`;
+document.getElementById('prompt').textContent=prompt;
+const script=voice==='No voiceover'?'No voiceover required. Use cinematic music and natural sound effects.':`Voiceover language: ${voice}
+
+Create a clear, engaging narration about "${topic}".
+Tone: natural, confident, emotional, and easy to understand.
+Structure:
+1. Powerful hook
+2. Brief introduction
+3. Main facts or story
+4. Interesting twist or key insight
+5. Memorable conclusion and call to action
+
+Use short sentences, natural pauses, and language suitable for a general audience.`;
+document.getElementById('voiceover').textContent=script;
+}
+function demo(){document.getElementById('topic').value='ইতিহাসের ১০টি অবিশ্বাস্য ঘটনা';document.getElementById('style').value='Documentary';document.getElementById('format').value='YouTube Long Video (16:9)';document.getElementById('duration').value='5 minutes';document.getElementById('visual').value='Ultra realistic';document.getElementById('voice').value='Bangla';document.getElementById('extra').value='১০টি দৃশ্য, cinematic music, no watermark';generate()}
+function copyText(id){const text=document.getElementById(id).textContent;if(text.includes('এখানে')||text.includes('Prompt তৈরি')){alert('আগে Prompt তৈরি করুন।');return}navigator.clipboard.writeText(text).then(()=>alert('কপি হয়েছে!')).catch(()=>alert('কপি করা যায়নি, অনুগ্রহ করে হাতে কপি করুন।'))}
+function downloadText(id,name){const text=document.getElementById(id).textContent;if(!text||text.includes('এখানে')||text.includes('Prompt তৈরি')){alert('আগে Prompt তৈরি করুন।');return}const blob=new Blob([text],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
+function resetAll(){document.querySelectorAll('input,textarea').forEach(e=>e.value='');document.getElementById('prompt').textContent='এখানে আপনার তৈরি করা AI Video Prompt দেখা যাবে...';document.getElementById('voiceover').textContent='Prompt তৈরি করলে এখানে Voiceover নির্দেশনা দেখা যাবে...'}
+
+async function prepareVideo(){
+const topic=val('topic'), prompt=document.getElementById('prompt').textContent;
+const endpoint=val('endpoint'), model=val('model'), quality=val('quality');
+if(!topic || prompt.includes('এখানে')){alert('আগে ভিডিওর বিষয় দিয়ে Prompt তৈরি করুন।');return}
+const status=document.getElementById('videoStatus');
+if(!endpoint){
+status.textContent=`ভিডিও তৈরির অনুরোধ প্রস্তুত হয়েছে।\nModel: ${model}\nQuality: ${quality}\n\nবাস্তব ভিডিও জেনারেট করতে একটি নিরাপদ backend API endpoint যুক্ত করুন। API Key কখনো HTML ফাইলে প্রকাশ করবেন না।`;
+return;
+}
+status.textContent='ভিডিও তৈরির অনুরোধ পাঠানো হচ্ছে...';
+try{
+const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,topic,model,quality,duration:val('duration'),format:val('format')})});
+const data=await res.json();
+status.textContent='API Response:\n'+JSON.stringify(data,null,2);
+}catch(e){status.textContent='অনুরোধ ব্যর্থ হয়েছে: '+e.message+'\nEndpoint ও backend API পরীক্ষা করুন।';}
+}
+</script>
+</body>
+</html>
